@@ -234,7 +234,7 @@ int main() {
             viewRoomStatus();
             break;
         case 4:
-            cout << "Exiting program. Thank you!" << endl;
+            cout << "Exiting program. Thank you for booking in my hotel!" << endl;
             break;
         default:
             cout << "Invalid choice. Please enter a valid option." << endl;
