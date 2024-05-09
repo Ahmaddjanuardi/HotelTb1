@@ -9,15 +9,28 @@ using namespace std;
 struct BookingData
 {
     string name;
-    int roomNumber;
     string roomType;
-    string roomFacilities;
     int quantity;
     int nights;
 };
 
+// Struktur untuk menyimpan informasi tipe kamar
+struct RoomInfo {
+    string roomType;
+    string roomFacilities;
+    int pricePerNight;
+};
+
 // Vektor untuk menyimpan semua data pemesanan kamar 
 vector<BookingData> bookings;
+
+vector<RoomInfo> roomInfo = {
+        {"Standard Room", "TV, Wi-Fi, Air conditioning", 100},
+        {"Superior Room", "TV, Wi-Fi, Air conditioning, Mini bar", 150},
+        {"Deluxe Room", "TV, Wi-Fi, Air conditioning, Mini bar, Jacuzzi", 200},
+        {"Single Room", "TV, Wi-Fi", 80},
+        {"Double Room", "TV, Wi-Fi, Air conditioning", 120}
+};
 
 void showWelcomeScreen() {
     // Tampilkan pesan selamat datang
@@ -32,17 +45,33 @@ void showWelcomeScreen() {
     cout << endl;
 }
 
-void bookingRoom() {
+
+
+// Fungsi untuk mendapatkan harga per malam berdasarkan tipe kamar
+int getPricePerNight(const string& roomType, const vector<RoomInfo>& roomInfo) {
+    // Lakukan pencarian di dalam vektor roomInfo untuk mendapatkan harga per malam berdasarkan tipe kamar
+    for (const auto& info : roomInfo) {
+        if (info.roomType == roomType) {
+            return info.pricePerNight;
+        }
+    }
+    // Jika tipe kamar tidak ditemukan, kembalikan harga default
+    return 0;
+}
+
+// Fungsi untuk memproses pemesanan kamar
+void bookingRoom(const vector<RoomInfo>& roomInfo, vector<BookingData>& bookings) {
     // Tampilkan kamar yang ingin dibooking
     cout << "======================================" << endl;
     cout << "               Book a Room             " << endl;
     cout << "======================================" << endl;
     cout << endl;
-    cout << "              [1] Standart Room        " << endl;
-    cout << "              [2] Superior Room        " << endl;
-    cout << "              [3] Deluxe Room        " << endl;
-    cout << "              [4] Single Room        " << endl;
-    cout << "              [5] Double Room        " << endl;
+    // Tampilkan daftar tipe kamar dari vector roomInfo
+    for (size_t i = 0; i < roomInfo.size(); i++) {
+        cout << " [" << i + 1 << "] " << roomInfo[i].roomType << endl;
+        cout << "     Facilities: " << roomInfo[i].roomFacilities << endl;
+        cout << "     Price per Night: $" << roomInfo[i].pricePerNight << endl;
+    }
     cout << endl;
 
     int roomChoice;
@@ -59,128 +88,91 @@ void bookingRoom() {
     cout << "Enter number of nights: ";
     cin >> nights;
 
-    string roomType;
-    int pricePerNight;
-    string roomFacilities;
+    // Memilih tipe kamar berdasarkan pilihan pemesan
+    if (roomChoice >= 1 && roomChoice <= roomInfo.size()) {
+        const RoomInfo& chosenRoom = roomInfo[roomChoice - 1]; // Mengambil informasi tipe kamar yang dipilih
 
-    // Tampilkan informasi kamar berdasarkan pilihan pengguna
-    switch (roomChoice) {
-    case 1:
-        roomType = "Standart Room Invormation";
-        roomFacilities = "Facilities: TV, Wi-Fi, Air conditioning";
-        pricePerNight = 100;
-        break;
-    case 2:
-        roomType = "Superior Room Invormation";
-        roomFacilities = "Facilities: TV, Wi-Fi, Air conditioning, Mini bar";
-        pricePerNight = 150;
-        break;
-    case 3:
-        roomType = "Deluxe Room Invormation";
-        roomFacilities = "Facilities: TV, Wi-Fi, Air conditioning, Mini bar, Jacuzzi";
-        pricePerNight = 200;
-        break;
-    case 4:
-        roomType = "Single Room Invormation";
-        roomFacilities = "Facilities: TV, Wi-Fi";
-        pricePerNight = 80;
-        break;
-    case 5:
-        roomType = "Double Room Invormation";
-        roomFacilities = "Facilities: TV, Wi-Fi, Air conditioning";
-        pricePerNight = 120;;
-        break;
-    default:
-        cout << "Invalid room choice." << endl;
-        break;
+        // Meminta data pemesan
+        string name;
+        cout << "Enter your name: ";
+        cin.ignore(); // Menghindari masalah getline setelah cin
+        getline(cin, name);
+
+        // Menampilkan informasi pemesanan
+        cout << "======================================" << endl;
+        cout << "         Booking Data                  " << endl;
+        cout << "======================================" << endl;
+        cout << "Name: " << name << endl;
+        cout << "Room Type: " << chosenRoom.roomType << endl;
+        cout << "Facilities: " << chosenRoom.roomFacilities << endl;
+        cout << "Quantity: " << quantity << endl;
+        cout << "Nights: " << nights << endl;
+        // Menghitung dan menampilkan total harga pesanan
+        cout << "Total Price: $" << (quantity * nights * getPricePerNight(chosenRoom.roomType, roomInfo)) << endl;
+
+        // Simpan data pemesanan ke dalam vektor bookings
+        BookingData booking;
+        booking.name = name;
+        booking.roomType = chosenRoom.roomType;
+        booking.quantity = quantity;
+        booking.nights = nights;
+        bookings.push_back(booking); // Menambahkan data pemesanan ke vektor bookings
     }
-    // Meminta data pemesan
-    BookingData booking;
-    cout << "Enter your name: ";
-    cin.ignore(); // Menghindari masalah getline setelah cin
-    getline(cin, booking.name);
-    booking.roomType = roomType;
-    booking.quantity = quantity;
-    booking.nights = nights;
-    booking.roomFacilities = roomFacilities;
+    else {
+        cout << "Invalid room choice." << endl;
+    }
+}
 
-    //simpan data pemesanan ke dalam victor
-    bookings.push_back(booking);
-
-    // Tampilkan data booking
-    cout << "======================================" << endl;
-    cout << "         Booking Data                  " << endl;
-    cout << "======================================" << endl;
-    cout << "Name: " << booking.name << endl;
-    cout << "Room Type: " << booking.roomType << endl;
-    cout << "Facilities: " << booking.roomFacilities << endl;
-    cout << "Quantity: " << booking.quantity << endl;
-    cout << "Nights: " << booking.nights << endl;
-    cout << "Total Price: $" << (quantity * nights * pricePerNight) << endl;
+// Fungsi untuk memilih tipe kamar dan memulai proses pemesanan
+void chooseRoomAndBook(const vector<RoomInfo>& roomInfo, vector<BookingData>& bookings) {
+    // Memanggil fungsi bookingRoom dengan menggunakan vektor roomInfo
+    bookingRoom(roomInfo, bookings);
 }
 
 void viewRoomStatus() {
-    //Tampilkan data pesanan yang sedang berlangsung
     cout << "======================================" << endl;
     cout << "          Room Status                 " << endl;
     cout << "======================================" << endl;
-    for (size_t i = 0; i < bookings.size(); i++)
-    {
+
+    for (size_t i = 0; i < bookings.size(); i++) {
         cout << "Booking " << i + 1 << ":" << endl;
         cout << "Name: " << bookings[i].name << endl;
         cout << "Room Type: " << bookings[i].roomType << endl;
-        cout << "Facilities: " << bookings[i].roomFacilities << endl;
         cout << "Quantity: " << bookings[i].quantity << endl;
         cout << "Nights: " << bookings[i].nights << endl;
-        //Menghitung sisa waktu menginap
+
+        // Mencari informasi fasilitas berdasarkan tipe kamar
+        for (const auto& room : roomInfo) {
+            if (room.roomType == bookings[i].roomType) {
+                cout << "Facilities: " << room.roomFacilities << endl;
+                break;
+            }
+        }
+
         int remainingNights = bookings[i].nights;
-        if (remainingNights > 0)
-        {
+        if (remainingNights > 0) {
             cout << "Remaining Nights: " << remainingNights << endl;
         }
-        else
-        {
+        else {
             cout << "Check out today" << endl;
         }
+
         cout << endl;
     }
 }
-// Fungsi untuk mendapatkan harga per malam berdasarkan tipe kamar
-int getPricePerNight(const string& roomType) {
-    // Lakukan pemetaan antara tipe kamar dan harga per malam
-    if (roomType == "Standard Room") {
-        return 100;
-    }
-    else if (roomType == "Superior Room") {
-        return 150;
-    }
-    else if (roomType == "Deluxe Room") {
-        return 200;
-    }
-    else if (roomType == "Single Room") {
-        return 80;
-    }
-    else if (roomType == "Double Room") {
-        return 120;
-    }
-    else {
-        // Tipe kamar tidak valid, kembalikan harga default
-        return 0;
-    }
-}
 
-void checkOut() {
+
+void checkOut(const vector<RoomInfo>& roomInfo) {
     // Meminta nama pemesan yang ingin check-out
     string nameToCheckOut;
-    cout << "enter name to check out: ";
-    cin.ignore(); //Menghindari masalah getline setelah cin
+    cout << "Enter name to check out: ";
+    cin.ignore(); // Menghindari masalah getline setelah cin
     getline(cin, nameToCheckOut);
 
-    // Cari data pesanan yang sesuai dengan nama pesanan
-    for (auto it = bookings.begin(); it != bookings.end(); ++it)
-    {
+    // Cari data pesanan yang sesuai dengan nama pemesan
+    for (auto it = bookings.begin(); it != bookings.end(); ++it) {
         if (it->name == nameToCheckOut) {
-            //Menampilkan informasi pesanan yang akan check-out
+            // Menampilkan informasi pesanan yang akan check-out
             cout << "======================================" << endl;
             cout << "       Checking Out Information        " << endl;
             cout << "======================================" << endl;
@@ -188,25 +180,24 @@ void checkOut() {
             cout << "Room Type: " << it->roomType << endl;
             cout << "Quantity: " << it->quantity << endl;
             cout << "Nights: " << it->nights << endl;
-            cout << "Total Price: $" << (it->quantity * it->nights * getPricePerNight(it->roomType)) << endl;
+            cout << "Total Price: $" << (it->quantity * it->nights * getPricePerNight(it->roomType, roomInfo)) << endl;
 
             // Menghapus data pesanan setelah check-out
             bookings.erase(it);
             cout << "Check-out successful!" << endl;
             return;
-
-       }
+        }
     }
     // Jika tidak ditemukan pesanan dengan nama pemesan yang dimasukkan
     cout << "No booking found with the given name." << endl;
 }
 
-void processCheckOut() {
+void processCheckOut(const vector<RoomInfo>& roomInfo) {
     // Tampilkan data pesanan sebelum melakukan check-out
     viewRoomStatus();
 
     // Proses check-out
-    checkOut();
+    checkOut(roomInfo); // Meneruskan roomInfo ke fungsi checkOut()
 }
 int main() {
     int choice;
@@ -223,11 +214,11 @@ int main() {
         switch (choice) {
         case 1:
             // Kode untuk memilih dan memesan kamar
-            bookingRoom();
+            chooseRoomAndBook(roomInfo, bookings);
             break;
         case 2:
             // Kode untuk proses check-out
-            processCheckOut();
+            processCheckOut(roomInfo);
             break;
         case 3:
             // Kode untuk melihat status kamar
